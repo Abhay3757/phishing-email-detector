@@ -24,26 +24,51 @@ const EmailScanner: React.FC<EmailScannerProps> = ({
       // Get the current active tab
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       
+      if (!tab.id) {
+        throw new Error('No active tab found');
+      }
+
+      // Check if we're on Gmail
+      if (!tab.url?.includes('mail.google.com')) {
+        throw new Error('Please open Gmail to scan an email');
+      }
+
       // Execute script to get email content
       const results = await chrome.scripting.executeScript({
-        target: { tabId: tab.id! },
+        target: { tabId: tab.id },
         func: () => {
-          // Gmail email content is typically in a div with role="textbox"
-          const emailContent = document.querySelector('div[role="textbox"]')?.textContent;
-          return emailContent || '';
+          // Try multiple Gmail selectors
+          const selectors = [
+            '.a3s.aiL', // Main email content
+            '[role="textbox"]', // Compose window
+            '.ii.gt' // Alternative email content
+          ];
+
+          for (const selector of selectors) {
+            const element = document.querySelector(selector);
+            if (element?.textContent) {
+              return element.textContent.trim();
+            }
+          }
+          return null;
         }
       });
 
       const emailContent = results[0].result;
-      if (emailContent) {
-        setEmailText(emailContent);
-        onScanEmail(emailContent);
-      } else {
-        throw new Error('No email content found');
+      
+      if (!emailContent) {
+        throw new Error('No email content found. Please make sure you have an email open.');
       }
-    } catch (err) {
+
+      // Update textarea and trigger scan
+      setEmailText(emailContent);
+      onScanEmail(emailContent);
+      
+    } catch (err: any) {
       console.error('Error reading email content:', err);
-      setError('Failed to read email content. Make sure you are viewing an email in Gmail.');
+      // Use the error prop from EmailScannerProps instead of setError
+      onScanEmail(''); // Clear any previous results
+      throw new Error(err.message || 'Failed to read email content');
     }
   };
 

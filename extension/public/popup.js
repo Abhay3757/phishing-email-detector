@@ -9,6 +9,26 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Setup save button event listener
     document.getElementById('save-key').addEventListener('click', saveApiKey);
+
+    // Check if we have any recent scan results
+    chrome.storage.local.get(['lastScanResult'], (result) => {
+      if (result.lastScanResult) {
+        displayLastResult(result.lastScanResult);
+      }
+    });
+
+    // Add scan button handler
+    document.getElementById('scanButton')?.addEventListener('click', async () => {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (tab.url.includes('mail.google.com')) {
+        chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          files: ['emailScanner.js']
+        });
+      } else {
+        document.getElementById('result').innerHTML = 'Please open a Gmail message first.';
+      }
+    });
   });
   
   function checkBackendStatus() {

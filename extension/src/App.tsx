@@ -13,16 +13,14 @@ function App() {
   const [error, setError] = useState('');
 
   const handleScanEmail = async (emailText: string) => {
-    if (!emailText.trim()) {
-      setError('Please enter an email body to analyze');
-      return;
-    }
-
-    setEmailBody(emailText);
-    setIsLoading(true);
     setError('');
-
+    setIsLoading(true);
+    
     try {
+      if (!emailText.trim()) {
+        throw new Error('Please provide email content to scan');
+      }
+  
       const response = await fetch('http://localhost:5000/api/analyze', {
         method: 'POST',
         headers: {
@@ -30,16 +28,17 @@ function App() {
         },
         body: JSON.stringify({ email_body: emailText }),
       });
-
+  
       if (!response.ok) {
-        throw new Error('Analysis failed');
+        throw new Error('Analysis failed. Please try again.');
       }
-
+  
       const data = await response.json();
       setAnalysisResults(data);
-    } catch (err) {
-      setError('Failed to analyze email. Please try again.');
-      console.error(err);
+      
+    } catch (err: any) {
+      setError(err.message || 'An error occurred while scanning the email');
+      setAnalysisResults(null);
     } finally {
       setIsLoading(false);
     }

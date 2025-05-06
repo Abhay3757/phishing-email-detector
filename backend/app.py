@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configure the Gemini API
-genai.configure(api_key="AIzaSyDdSUEBjD5VeIWSsS72iTJPPkBarihyS6w")
+genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes

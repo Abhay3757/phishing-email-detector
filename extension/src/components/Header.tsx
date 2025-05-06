@@ -1,5 +1,5 @@
 import React from 'react';
-import { Moon, Sun, Shield, Settings } from 'lucide-react';
+import { Moon, Sun, Shield } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
 const Header: React.FC = () => {
@@ -14,14 +14,7 @@ const Header: React.FC = () => {
             <span className="font-semibold text-slate-900 dark:text-white">PhishGuard</span>
           </div>
           
-          <div className="flex items-center space-x-3">
-            <button 
-              className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" 
-              aria-label="Settings"
-            >
-              <Settings className="h-5 w-5 text-slate-600 dark:text-slate-300" />
-            </button>
-            
+          <div className="flex items-center">
             <button 
               onClick={toggleTheme}
               className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" 
